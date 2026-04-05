@@ -1,26 +1,24 @@
 name: Playwright Tests
 
 on:
-  push: # Trigger on push to main or master branches
+  push: # Auto-trigger the workflow on push to main or master branches
     branches:
       - main
       - master
-  pull_request: # Trigger on PRs to main or master
+  pull_request: # Auto-trigger the workflow on pull requests to main or master branches
     branches:
       - main
       - master
   schedule:
-    - cron: "0 13 * * *" # Runs daily at 8:00 AM EST
-  workflow_dispatch: # Manual trigger
+    - cron: "0 13 * * *" # Runs every day at 8:00 AM EST
+  workflow_dispatch: # Allows manual trigger
 
 jobs:
   test:
     timeout-minutes: 60
-    runs-on: ubuntu-latest # Options: macos-latest, windows-latest, ubuntu-latest
-    env:
-      PRACTICE_USERNAME: admin
-      PRACTICE_PASSWORD: admin
+    runs-on: ubuntu-latest # Virtual amchine (macos-latest, windows-latest, ubuntu-latest)
 
+    # setup the node js
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -31,16 +29,25 @@ jobs:
           node-version: "22"
           cache: "npm"
 
+      #installs the dependencies
       - name: Install dependencies
         run: npm ci
 
-      - name: Install Playwright Browsers
-        # Installs Chromium (change to 'firefox' or 'webkit' if needed, or remove to install all)
+      # installs the Playwright browsers (chromium, firefox, webkit) for testing. Note: Replace 'chromium' with the browser you want to test.
+      - name: Install Playwright Chromium
         run: npx playwright install --with-deps chromium
 
-      - name: Run Playwright tests (headless)
+      # configures the environment variables for the tests
+      - name: configure environment variables
+        run: |
+          echo "PRACTICE_USERNAME=${{ secrets.PRACTICE_USERNAME }}" >> $GITHUB_ENV
+          echo "PRACTICE_PASSWORD=${{ secrets.PRACTICE_PASSWORD }}" >> $GITHUB_ENV
+
+      # runs the tests in headless mode (without a GUI)
+      - name: Run Playwright tests
         run: npm run tests:headless
 
+      # Upload test results and reports
       - name: Upload Playwright test results
         uses: actions/upload-artifact@v4
         if: always()
