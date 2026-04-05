@@ -17,6 +17,9 @@ jobs:
   test:
     timeout-minutes: 60
     runs-on: ubuntu-latest # Options: macos-latest, windows-latest, ubuntu-latest
+    env:
+      PRACTICE_USERNAME: admin
+      PRACTICE_PASSWORD: admin
 
     steps:
       - name: Checkout code

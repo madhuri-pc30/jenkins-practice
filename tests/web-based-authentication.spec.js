@@ -10,14 +10,21 @@ test('Bypass authentication by embedding the credentials in the URL', async ({ p
   
 });
 
-test('Bypass authentication by encoding the credentials base64 format', async ({ page }) => {
-    
-    let encodedCredential = Buffer.from("admin:admin").toString("base64");
 
-    await page.setExtraHTTPHeaders({'Authorization': `Basic ${encodedCredential}`});
+test('Bypass authentication by encoding the credentials in base64 format', async ({ page }) => {
 
-    page.goto("https://the-internet-5chk.onrender.com/basic_auth");
+  // Encode credentials in base64
+  const encodedCredential = Buffer.from(`${process.env.PRACTICE_USERNAME}:${process.env.PRACTICE_PASSWORD}`).toString('base64');
 
-    await page.waitForTimeout(3000);
+  // Set the Authorization header
+  await page.setExtraHTTPHeaders({
+    'Authorization': `Basic ${encodedCredential}`
+  });
+
+  // Navigate to the protected page
+  await page.goto('https://the-internet-5chk.onrender.com/basic_auth');
+
+  // Wait for 3 seconds
+  await page.waitForTimeout(3000);
 
 });
